@@ -6,6 +6,9 @@ class CardsController < ApplicationController
   def index
     @cards = Card.all
     @deck = Deck.new
+    @garrett = Player.new(@deck)
+
+
   end
 
   # GET /cards/1
