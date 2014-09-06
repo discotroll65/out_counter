@@ -7,7 +7,7 @@ class CardsController < ApplicationController
     @cards = Card.all
     @deck = Deck.new
     @garrett = Player.new(@deck)
-
+    binding.pry
 
   end
 
