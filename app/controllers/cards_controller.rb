@@ -7,7 +7,15 @@ class CardsController < ApplicationController
     @cards = Card.all
     @deck = Deck.new
     @garrett = Player.new(@deck)
-    binding.pry
+    @aparna = Player.new(@deck)
+    @veera = Player.new(@deck)
+
+    @board = Board.new
+    @board.flop(@deck)
+    @board.turn(@deck)
+    @board.river(@deck)
+
+    @garrett.combos(@board)
 
   end
 

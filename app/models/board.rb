@@ -14,4 +14,8 @@ class Board
   def river (deck)
     @board << deck.draw_card
   end
+
+  def cards
+    @board
+  end
 end
