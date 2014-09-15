@@ -60,72 +60,6 @@ class Player
 		end
 	end
 
-
-	def straight_flush (five_card_hand)
-		has_straight_flush = {:status=>false, :straight_highcard => nil}
-		has_straight_flush[:status] = straight(five_card_hand)[:status] && flush(five_card_hand)[:status]
-		has_straight_flush[:straight_highcard] = straight(five_card_hand)[:straight_highcard]
-
-		has_straight_flush
-	end
-
-	#tests if hand is a flush, gives back a hash
-	def flush (five_card_hand)
-		suitify = five_card_hand.map do |card|
-			if card.slice(0..1) == "10"
-				card.slice(2)
-			else
-				card.slice(1)
-			end
-		end
-
-		has_flush = {:status=>false, :kickers => nil}
-		has_flush[:status] = true if suitify.uniq.length == 1
-		has_flush[:kickers] = numberfy(five_card_hand)
-
-		has_flush
-	end
-
-	#checks if a hand has a straight, returns a hash
-	def straight (five_card_hand)
-
-		has_straight = {:status=>false, :straight_highcard => nil}
-		straight_possibilities = straight_numberfy(five_card_hand)
-
-		straight_possibilities.each do |hand|
-			low_to_high = (hand.min..hand.max).to_a
-
-			if low_to_high == hand.sort
-				has_straight[:status] = true
-				has_straight[:straight_highcard] = hand.max.to_i
-			end
-		end
-		has_straight
-	end
-
-	#checks if a hand has four of a kind, returns a hash
-	def four_of_a_kind (five_card_hand)
-
-		has_four_of_a_kind = {:status=>false, :quad_rank=> nil, :kicker => nil}
-
-		hand_ranks = numberfy(five_card_hand)
-
-		if hand_ranks.uniq.length == 2
-			if (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 1
-				has_four_of_a_kind[:kicker] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
-				has_four_of_a_kind[:quad_rank] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
-				has_four_of_a_kind[:status] = true
-
-			elsif (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 4
-				has_four_of_a_kind[:kicker] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
-				has_four_of_a_kind[:quad_rank] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
-				has_four_of_a_kind[:status] = true
-			end
-		end
-
-		has_four_of_a_kind
-	end
-
 	#takes hand, turns royals into numbers, handles aces
 	#gives an array of hands - 2 hands if there is an ace,
 	# one hand if there is no ace
@@ -186,5 +120,98 @@ class Player
 		end
 		numbered_hand.sort {|x,y| y<=>x}
 	end
+
+
+	def straight_flush (five_card_hand)
+		has_straight_flush = {:status=>false, :straight_highcard => nil}
+		has_straight_flush[:status] = straight(five_card_hand)[:status] && flush(five_card_hand)[:status]
+		has_straight_flush[:straight_highcard] = straight(five_card_hand)[:straight_highcard]
+
+		has_straight_flush
+	end
+
+	#checks if a hand has four of a kind, returns a hash
+	def four_of_a_kind (five_card_hand)
+
+		has_four_of_a_kind = {:status=>false, :quad_rank=> nil, :kicker => nil}
+
+		hand_ranks = numberfy(five_card_hand)
+
+		if hand_ranks.uniq.length == 2
+			if (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 1
+				has_four_of_a_kind[:kicker] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
+				has_four_of_a_kind[:quad_rank] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
+				has_four_of_a_kind[:status] = true
+
+			elsif (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 4
+				has_four_of_a_kind[:kicker] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
+				has_four_of_a_kind[:quad_rank] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
+				has_four_of_a_kind[:status] = true
+			end
+		end
+
+		has_four_of_a_kind
+	end
+
+	def full_house (five_card_hand)
+
+		has_full_house = {:status=>false, :trip_rank=> nil, :pair_rank => nil}
+
+		hand_ranks = numberfy(five_card_hand)
+
+		if hand_ranks.uniq.length == 2
+			if (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 2
+				has_full_house[:pair_rank] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
+				has_full_house[:trip_rank] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
+				has_full_house[:status] = true
+
+			elsif (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 3
+				has_full_house[:pair_rank] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
+				has_full_house[:trip_rank] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
+				has_full_house[:status] = true
+			end
+		end
+
+		has_full_house
+	end
+
+
+	#tests if hand is a flush, gives back a hash
+	def flush (five_card_hand)
+		suitify = five_card_hand.map do |card|
+			if card.slice(0..1) == "10"
+				card.slice(2)
+			else
+				card.slice(1)
+			end
+		end
+
+		has_flush = {:status=>false, :kickers => nil}
+		has_flush[:status] = true if suitify.uniq.length == 1
+		has_flush[:kickers] = numberfy(five_card_hand)
+
+		has_flush
+	end
+
+	#checks if a hand has a straight, returns a hash
+	def straight (five_card_hand)
+
+		has_straight = {:status=>false, :straight_highcard => nil}
+		straight_possibilities = straight_numberfy(five_card_hand)
+
+		straight_possibilities.each do |hand|
+			low_to_high = (hand.min..hand.max).to_a
+
+			if low_to_high == hand.sort
+				has_straight[:status] = true
+				has_straight[:straight_highcard] = hand.max.to_i
+			end
+		end
+		has_straight
+	end
+
+
+
+
 
 end

@@ -18,7 +18,7 @@
 # #Poker hands, Highest to lowest
 # Straight Flush (highest straightcard)
 # four of a kind (highest rank, kicker)
-# Full house (highest three of a kind, if tie, highest two matching cards)
+# Full house (highest three of a kind, then highest pair)
 # Flush (highest ranking card, then highest kickers)
 # Straight (highest straightcard)
 # 3 of  a kind (Highest three of a kind, then highest kickers)
