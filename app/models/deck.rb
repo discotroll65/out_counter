@@ -1,4 +1,4 @@
-# Top 15 Hold'em Starting Hands
+# Top 15 Hold'em Starting Draws
 # AA
 # KK
 # QQ
@@ -14,6 +14,17 @@
 # AQ (off suit)
 # 99
 # JQ (suited)
+
+# #Poker hands, Highest to lowest
+# Straight Flush (highest straightcard)
+# four of a kind (highest rank, kicker)
+# Full house (highest three of a kind, if tie, highest two matching cards)
+# Flush (highest ranking card, then highest kickers)
+# Straight (highest straightcard)
+# 3 of  a kind (Highest three of a kind, then highest kickers)
+# 2 pair (highest pair, second highest pair, highest kicker)
+# high card (highest card, then highest kickers)
+
 
 class Deck
 
