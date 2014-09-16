@@ -23,6 +23,7 @@
 # Straight (highest straightcard)
 # 3 of  a kind (Highest three of a kind, then highest kickers)
 # 2 pair (highest pair, second highest pair, highest kicker)
+# Pair (Highest pair, kickers)
 # high card (highest card, then highest kickers)
 
 

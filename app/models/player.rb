@@ -210,8 +210,21 @@ class Player
 		has_straight
 	end
 
+	#checks if a hand has three of a kind, returns a hash
+	def three_of_a_kind (five_card_hand)
 
+		has_three_of_a_kind = {:status=>false, :trip_rank=> nil, :kickers => nil}
 
+		hand_ranks = numberfy(five_card_hand)
 
-
+		hand_ranks.each do |card_rank|
+			reduced_hand = hand_ranks - [card_rank]
+			if reduced_hand.length == 2
+				has_three_of_a_kind[:status] = true
+				has_three_of_a_kind[:trip_rank] = card_rank
+				has_three_of_a_kind[:kickers] = reduced_hand.sort {|x,y| y<=>x}
+			end
+		end
+		has_three_of_a_kind
+	end
 end
