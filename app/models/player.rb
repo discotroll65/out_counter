@@ -283,4 +283,14 @@ class Player
 		has_pair
 	end
 
+	def highcard (five_card_hand)
+		hand_highcard = {:highcard => nil, :kickers => nil}
+
+		hand_ranks = numberfy(five_card_hand)
+		hand_highcard[:highcard] = hand_ranks[0]
+		hand_highcard[:kickers] = hand_ranks.slice(1..4)
+
+		hand_highcard
+	end
+
 end
