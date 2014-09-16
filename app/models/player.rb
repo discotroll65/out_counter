@@ -217,14 +217,53 @@ class Player
 
 		hand_ranks = numberfy(five_card_hand)
 
-		hand_ranks.each do |card_rank|
-			reduced_hand = hand_ranks - [card_rank]
-			if reduced_hand.length == 2
-				has_three_of_a_kind[:status] = true
-				has_three_of_a_kind[:trip_rank] = card_rank
-				has_three_of_a_kind[:kickers] = reduced_hand.sort {|x,y| y<=>x}
+		if hand_ranks.uniq.length == 3
+			hand_ranks.each do |card_rank|
+				reduced_hand = hand_ranks - [card_rank]
+				if reduced_hand.length == 2
+					has_three_of_a_kind[:status] = true
+					has_three_of_a_kind[:trip_rank] = card_rank
+					has_three_of_a_kind[:kickers] = reduced_hand.sort {|x,y| y<=>x}
+					break
+				end
 			end
 		end
 		has_three_of_a_kind
 	end
+
+	def two_pair (five_card_hand)
+
+		has_two_pair = {:status=>false, :higher_pair_rank=> nil, :lower_pair_rank=> nil, :kicker => nil}
+
+		hand_ranks = numberfy(five_card_hand)
+
+		if hand_ranks.uniq.length == 3
+			hand_ranks.each do |card_rank|
+				reduced_hand = hand_ranks - [card_rank]
+				if reduced_hand.length == 3 && reduced_hand.uniq.length == 2
+					has_two_pair[:status] = true
+					first_pair = card_rank
+					#find the second pair and kicker
+					if (reduced_hand - [ reduced_hand.uniq[0] ]).length == 1
+						second_pair = reduced_hand.uniq[0]
+						has_two_pair[:kicker] = (reduced_hand - [ reduced_hand.uniq[0] ])[0]
+					else
+						second_pair = reduced_hand.uniq[1]
+						has_two_pair[:kicker] = (reduced_hand - [ reduced_hand.uniq[1] ])[0]
+					end
+					#which pair is higher
+					if first_pair > second_pair
+						has_two_pair[:higher_pair_rank] = first_pair
+						has_two_pair[:lower_pair_rank] = second_pair
+					else
+						has_two_pair[:higher_pair_rank] = second_pair
+						has_two_pair[:lower_pair_rank] = first_pair
+					end
+					break
+				end
+			end
+		end
+		has_two_pair
+	end
+
 end
