@@ -266,4 +266,21 @@ class Player
 		has_two_pair
 	end
 
+	def pair (five_card_hand)
+		has_pair = {:status => false, :pair_rank => nil, :kickers => nil}
+		hand_ranks = numberfy(five_card_hand)
+		if hand_ranks.uniq.length == 4
+			hand_ranks.each do |card_rank|
+				reduced_hand = hand_ranks - [card_rank]
+				if reduced_hand.length == 3
+					has_pair[:status] = true
+					has_pair[:pair_rank] = card_rank
+					has_pair[:kickers] = reduced_hand.sort {|x,y| y<=>x}
+					break
+				end
+			end
+		end
+		has_pair
+	end
+
 end
