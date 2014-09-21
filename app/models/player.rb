@@ -25,6 +25,43 @@ class Player
 		@hand
 	end
 
+	def best_combo (board)
+		result = []
+		self.combos(board).each_with_index do |five_card_hand, index|
+			while true
+				hand_rating = self.straight_flush(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.four_of_a_kind(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.full_house(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.flush(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.straight(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.three_of_a_kind(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.two_pair(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.pair(five_card_hand)
+				break if hand_rating[:status] == true
+
+				hand_rating = self.highcard(five_card_hand)
+				break
+			end
+
+			result << hand_rating
+		end
+		result.sort {|x,y| y[:hand_strength]<=>x[:hand_strength]}
+	end
+
 	#combines hand with all possible 5 card combinations using the board
 	def combos (board)
 		board_amount = board.cards.length
@@ -123,7 +160,7 @@ class Player
 
 
 	def straight_flush (five_card_hand)
-		has_straight_flush = {:status=>false, :straight_highcard => nil}
+		has_straight_flush = {:name => "straight flush", :hand_strength => 9, :status=>false, :straight_highcard => nil}
 		has_straight_flush[:status] = straight(five_card_hand)[:status] && flush(five_card_hand)[:status]
 		has_straight_flush[:straight_highcard] = straight(five_card_hand)[:straight_highcard]
 
@@ -133,7 +170,7 @@ class Player
 	#checks if a hand has four of a kind, returns a hash
 	def four_of_a_kind (five_card_hand)
 
-		has_four_of_a_kind = {:status=>false, :quad_rank=> nil, :kicker => nil}
+		has_four_of_a_kind = {:name => "four of a kind", :hand_strength => 8,:status=>false, :quad_rank=> nil, :kicker => nil}
 
 		hand_ranks = numberfy(five_card_hand)
 
@@ -155,7 +192,7 @@ class Player
 
 	def full_house (five_card_hand)
 
-		has_full_house = {:status=>false, :trip_rank=> nil, :pair_rank => nil}
+		has_full_house = {:name => "full_house", :hand_strength => 7,:status=>false, :trip_rank=> nil, :pair_rank => nil}
 
 		hand_ranks = numberfy(five_card_hand)
 
@@ -186,7 +223,7 @@ class Player
 			end
 		end
 
-		has_flush = {:status=>false, :kickers => nil}
+		has_flush = {:name => "flush", :hand_strength => 6,:status=>false, :kickers => nil}
 		has_flush[:status] = true if suitify.uniq.length == 1
 		has_flush[:kickers] = numberfy(five_card_hand)
 
@@ -196,7 +233,7 @@ class Player
 	#checks if a hand has a straight, returns a hash
 	def straight (five_card_hand)
 
-		has_straight = {:status=>false, :straight_highcard => nil}
+		has_straight = {:name => "straight", :hand_strength => 5,:status=>false, :straight_highcard => nil}
 		straight_possibilities = straight_numberfy(five_card_hand)
 
 		straight_possibilities.each do |hand|
@@ -213,7 +250,7 @@ class Player
 	#checks if a hand has three of a kind, returns a hash
 	def three_of_a_kind (five_card_hand)
 
-		has_three_of_a_kind = {:status=>false, :trip_rank=> nil, :kickers => nil}
+		has_three_of_a_kind = {:name => "three of a kind", :hand_strength => 4,:status=>false, :trip_rank=> nil, :kickers => nil}
 
 		hand_ranks = numberfy(five_card_hand)
 
@@ -233,7 +270,7 @@ class Player
 
 	def two_pair (five_card_hand)
 
-		has_two_pair = {:status=>false, :higher_pair_rank=> nil, :lower_pair_rank=> nil, :kicker => nil}
+		has_two_pair = {:name => "two pair", :hand_strength => 3,:status=>false, :higher_pair_rank=> nil, :lower_pair_rank=> nil, :kicker => nil}
 
 		hand_ranks = numberfy(five_card_hand)
 
@@ -267,7 +304,7 @@ class Player
 	end
 
 	def pair (five_card_hand)
-		has_pair = {:status => false, :pair_rank => nil, :kickers => nil}
+		has_pair = {:name => "pair", :hand_strength => 2,:status => false, :pair_rank => nil, :kickers => nil}
 		hand_ranks = numberfy(five_card_hand)
 		if hand_ranks.uniq.length == 4
 			hand_ranks.each do |card_rank|
@@ -284,7 +321,7 @@ class Player
 	end
 
 	def highcard (five_card_hand)
-		hand_highcard = {:highcard => nil, :kickers => nil}
+		hand_highcard = {:name => "high card", :hand_strength => 1,:highcard => nil, :kickers => nil}
 
 		hand_ranks = numberfy(five_card_hand)
 		hand_highcard[:highcard] = hand_ranks[0]

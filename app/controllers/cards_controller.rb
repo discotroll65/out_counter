@@ -11,13 +11,14 @@ class CardsController < ApplicationController
     @veera = Player.new(@deck)
 
     @board = Board.new
-    @board.flop(@deck)
 
+    binding.pry
+
+    @board.flop(@deck)
     @board.turn(@deck)
     @board.river(@deck)
 
     x = @garrett.combos(@board)
-    binding.pry
     @garrett.straight(['As', '2d', '3c','4c','5h'])
 
   end
