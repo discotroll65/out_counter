@@ -50,9 +50,28 @@ class Player
 		end
 	end
 
-	def universal_tie_breaker(hand_result_1, hand_result_2)
-		if hand_result_1[:hand_strength] == 9 || hand_result_1[:hand_strength] == 5
-			result = self.straights_tie_breaker(hand_result_1, hand_result_2)
+	def universal_tie_breaker(first_hand_stats, second_hand_stats)
+		#For straight flush and straights
+		if first_hand_stats[:hand_strength] == 9 || first_hand_stats[:hand_strength] == 5
+			result = self.straights_tie_breaker(first_hand_stats, second_hand_stats)
+			#four of a kind
+		elsif first_hand_stats[:hand_strength] == 8
+			result = self.four_of_a_kind_tie_breaker(first_hand_stats, second_hand_stats)
+			#full house
+		elsif first_hand_stats[:hand_strength] == 7
+			result = self.full_house_tie_breaker(first_hand_stats, second_hand_stats)
+			#for flushes or high card
+		elsif first_hand_stats[:hand_strength] == 6 || first_hand_stats[:hand_strength] == 1
+			result = self.compare_kickers(first_hand_stats[:kickers], second_hand_stats[:kickers])
+			#three of a kind
+		elsif first_hand_stats[:hand_strength] == 4
+			result = self.three_of_a_kind_tie_breaker(first_hand_stats, second_hand_stats)
+			#two pair
+		elsif first_hand_stats[:hand_strength] == 3
+
+			#pair
+		elsif first_hand_stats[:hand_strength] == 2
+
 		end
 
 		result
@@ -200,13 +219,13 @@ class Player
 		has_straight_flush
 	end
 
-	#Returns 0 if hand_result_2 beats hand_result_1, 1 if hand_result_1 beats hand_result_2, and "tie" if tie
-	def straights_tie_breaker (hand_result_1,hand_result_2)
-		if hand_result_2[:straight_highcard] > hand_result_1[:straight_highcard]
+	#Returns 0 if second_hand_stats beats first_hand_stats, 1 if first_hand_stats beats second_hand_stats, and "tie" if tie
+	def straights_tie_breaker (first_hand_stats,second_hand_stats)
+		if second_hand_stats[:straight_highcard] > first_hand_stats[:straight_highcard]
 			result = 0
-		elsif hand_result_2[:straight_highcard] < hand_result_1[:straight_highcard]
+		elsif second_hand_stats[:straight_highcard] < first_hand_stats[:straight_highcard]
 			result = 1
-		elsif hand_result_2[:straight_highcard] == hand_result_1[:straight_highcard]
+		elsif second_hand_stats[:straight_highcard] == first_hand_stats[:straight_highcard]
 			result = "tie"
 		end
 		result
@@ -235,15 +254,40 @@ class Player
 		has_four_of_a_kind
 	end
 
-	#Returns 0 if hand_result_2 beats hand_result_1, 1 if hand_result_1 beats hand_result_2, and "tie" if tie
-	def four_of_a_kind_tie_breaker (hand_result_1,hand_result_2)
-		if hand_result_2[:quad_rank] > hand_result_1[:quad_rank]
+	#Returns 0 if second_hand_stats beats first_hand_stats, 1 if first_hand_stats beats second_hand_stats, and "tie" if tie
+	def four_of_a_kind_tie_breaker (first_hand_stats,second_hand_stats)
+		if second_hand_stats[:quad_rank] > first_hand_stats[:quad_rank]
 			result = 0
-		elsif hand_result_2[:quad_rank] < hand_result_1[:quad_rank]
+		elsif second_hand_stats[:quad_rank] < first_hand_stats[:quad_rank]
 			result = 1
-		elsif hand_result_2[:quad_rank] == hand_result_1[:quad_rank]
-			result = "tie"
+		elsif second_hand_stats[:quad_rank] == first_hand_stats[:quad_rank]
+			if second_hand_stats[:kicker] > first_hand_stats[:kicker]
+				result = 0
+			elsif second_hand_stats[:kicker] < first_hand_stats[:kicker]
+				result = 1
+			elsif second_hand_stats[:kicker] == first_hand_stats[:kicker]
+				result = "tie"
+			end
 		end
+		result
+	end
+
+	#Returns 0 if second kickers beats first_kickers, 1 if first_kickers beats second kickers, and "tie" if tie
+	def compare_kickers (first_kickers, second_kickers)
+		last_index = (first_kickers.length)-1
+		result = "test"
+		first_kickers.each_with_index do |kicker, index|
+			if second_kickers[index] > kicker
+				result = 0
+				break
+			elsif kicker > second_kickers[index]
+				result = 1
+				break
+			elsif kicker == second_kickers[index] && index == last_index
+				result = "tie"
+			end
+		end
+
 		result
 	end
 
@@ -269,7 +313,23 @@ class Player
 
 		has_full_house
 	end
-
+	#Returns 0 if second_hand_stats beats first_hand_stats, 1 if first_hand_stats beats second_hand_stats, and "tie" if tie
+	def full_house_tie_breaker (first_hand_stats,second_hand_stats)
+		if second_hand_stats[:trip_rank] > first_hand_stats[:trip_rank]
+			result = 0
+		elsif second_hand_stats[:trip_rank] < first_hand_stats[:trip_rank]
+			result = 1
+		elsif second_hand_stats[:trip_rank] == first_hand_stats[:trip_rank]
+			if second_hand_stats[:pair_rank] > first_hand_stats[:pair_rank]
+				result = 0
+			elsif second_hand_stats[:pair_rank] < first_hand_stats[:pair_rank]
+				result = 1
+			elsif second_hand_stats[:pair_rank] == first_hand_stats[:pair_rank]
+				result = "tie"
+			end
+		end
+		result
+	end
 
 	#tests if hand is a flush, gives back a hash
 	def flush (five_card_hand)
@@ -328,6 +388,18 @@ class Player
 			end
 		end
 		has_three_of_a_kind
+	end
+
+	#Returns 0 if second_hand_stats beats first_hand_stats, 1 if first_hand_stats beats second_hand_stats, and "tie" if tie
+	def three_of_a_kind_tie_breaker (first_hand_stats,second_hand_stats)
+		if second_hand_stats[:trip_rank] > first_hand_stats[:trip_rank]
+			result = 0
+		elsif second_hand_stats[:trip_rank] < first_hand_stats[:trip_rank]
+			result = 1
+		elsif second_hand_stats[:trip_rank] == first_hand_stats[:trip_rank]
+			result = self.compare_kickers(first_hand_stats[:kickers], second_hand_stats[:kickers])
+		end
+		result
 	end
 
 	def two_pair (five_card_hand)

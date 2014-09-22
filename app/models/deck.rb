@@ -29,12 +29,12 @@
 
 # TIEBREAKER METHODS:
 # straight flush, straight (9, 5)
-# four of a kind
-# full house
-# flush, highcard  kickers compare
-# three of a kind  kickers compare
-# 2 pair
-# Pair   kickers compare
+# four of a kind (8)
+# full house (7)
+# flush, highcard  kickers compare (6, 1)
+# three of a kind  kickers compare (4)
+# 2 pair (3)
+# Pair   kickers compare (2)
 
 
 class Deck
