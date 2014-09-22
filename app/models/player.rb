@@ -9,6 +9,11 @@ class Player
 
 	end
 
+	def hand_populate (array)
+		@hand = []
+		array.each {|card| @hand<<card}
+	end
+
 	def fold
 		@folded = true
 	end
@@ -26,6 +31,34 @@ class Player
 	end
 
 	def best_combo (board)
+		all_combos = self.possible_hands(board)
+		strongest_hand_strength = all_combos[0][:hand_strength]
+
+		if strongest_hand_strength > all_combos[1][:hand_strength]
+			best_combo = all_combos[0]
+		else
+			top_combos = []
+			counter = 0
+
+			while all_combos[counter][:hand_strength] == strongest_hand_strength
+				top_combos << all_combos[counter]
+				counter = counter + 1
+			end
+
+			top_combos.sort {|y,x| @garrett.universal_tie_breaker(x,y)<=>@garrett.universal_tie_breaker(y,x) }
+			top_combos[0]
+		end
+	end
+
+	def universal_tie_breaker(hand_result_1, hand_result_2)
+		if hand_result_1[:hand_strength] == 9 || hand_result_1[:hand_strength] == 5
+			result = self.straights_tie_breaker(hand_result_1, hand_result_2)
+		end
+
+		result
+	end
+
+	def possible_hands (board)
 		result = []
 		self.combos(board).each_with_index do |five_card_hand, index|
 			while true
@@ -167,6 +200,18 @@ class Player
 		has_straight_flush
 	end
 
+	#Returns 0 if hand_result_2 beats hand_result_1, 1 if hand_result_1 beats hand_result_2, and "tie" if tie
+	def straights_tie_breaker (hand_result_1,hand_result_2)
+		if hand_result_2[:straight_highcard] > hand_result_1[:straight_highcard]
+			result = 0
+		elsif hand_result_2[:straight_highcard] < hand_result_1[:straight_highcard]
+			result = 1
+		elsif hand_result_2[:straight_highcard] == hand_result_1[:straight_highcard]
+			result = "tie"
+		end
+		result
+	end
+
 	#checks if a hand has four of a kind, returns a hash
 	def four_of_a_kind (five_card_hand)
 
@@ -189,6 +234,19 @@ class Player
 
 		has_four_of_a_kind
 	end
+
+	#Returns 0 if hand_result_2 beats hand_result_1, 1 if hand_result_1 beats hand_result_2, and "tie" if tie
+	def four_of_a_kind_tie_breaker (hand_result_1,hand_result_2)
+		if hand_result_2[:quad_rank] > hand_result_1[:quad_rank]
+			result = 0
+		elsif hand_result_2[:quad_rank] < hand_result_1[:quad_rank]
+			result = 1
+		elsif hand_result_2[:quad_rank] == hand_result_1[:quad_rank]
+			result = "tie"
+		end
+		result
+	end
+
 
 	def full_house (five_card_hand)
 
@@ -215,6 +273,8 @@ class Player
 
 	#tests if hand is a flush, gives back a hash
 	def flush (five_card_hand)
+		has_flush = {:name => "flush", :hand_strength => 6,:status=>false, :highcard => nil, :kickers => nil}
+
 		suitify = five_card_hand.map do |card|
 			if card.slice(0..1) == "10"
 				card.slice(2)
@@ -223,9 +283,11 @@ class Player
 			end
 		end
 
-		has_flush = {:name => "flush", :hand_strength => 6,:status=>false, :kickers => nil}
 		has_flush[:status] = true if suitify.uniq.length == 1
-		has_flush[:kickers] = numberfy(five_card_hand)
+
+		hand_ranks = numberfy(five_card_hand)
+		has_flush[:highcard] = hand_ranks[0]
+		has_flush[:kickers] = hand_ranks.slice(1..4)
 
 		has_flush
 	end

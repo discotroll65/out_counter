@@ -18,4 +18,11 @@ class Board
   def cards
     @board
   end
+
+  def populate (array)
+    @board = []
+    array.each do |card|
+      @board << card
+    end
+  end
 end

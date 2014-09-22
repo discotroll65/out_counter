@@ -16,15 +16,25 @@
 # JQ (suited)
 
 # #Poker hands, Highest to lowest
-# Straight Flush (highest straightcard)
-# four of a kind (highest rank, kicker)
-# Full house (highest three of a kind, then highest pair)
-# Flush (highest ranking card, then highest kickers)
-# Straight (highest straightcard)
-# 3 of  a kind (Highest three of a kind, then highest kickers)
-# 2 pair (highest pair, second highest pair, highest kicker)
-# Pair (Highest pair, kickers)
-# high card (highest card, then highest kickers)
+# 9.) Straight Flush (highest straightcard)
+# 8.) four of a kind (highest rank, kicker)
+# 7.) Full house (highest three of a kind, then highest pair)
+# 6.) Flush (highest ranking card, then highest kickers)
+# 5.) Straight (highest straightcard)
+# 4.) 3 of  a kind (Highest three of a kind, then highest kickers)
+# 3.) 2 pair (highest pair, second highest pair, highest kicker)
+# 2.) Pair (Highest pair, kickers)
+# 1.) high card (highest card, then highest kickers)
+
+
+# TIEBREAKER METHODS:
+# straight flush, straight (9, 5)
+# four of a kind
+# full house
+# flush, highcard  kickers compare
+# three of a kind  kickers compare
+# 2 pair
+# Pair   kickers compare
 
 
 class Deck
