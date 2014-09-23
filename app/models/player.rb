@@ -43,9 +43,10 @@ class Player
 			while all_combos[counter][:hand_strength] == strongest_hand_strength
 				top_combos << all_combos[counter]
 				counter = counter + 1
+				break if all_combos[counter] == nil
 			end
 
-			top_combos.sort {|y,x| @garrett.universal_tie_breaker(x,y)<=>@garrett.universal_tie_breaker(y,x) }
+			top_combos.sort! {|y,x| self.universal_tie_breaker(x,y)<=>self.universal_tie_breaker(y,x) }
 			top_combos[0]
 		end
 	end
@@ -68,10 +69,10 @@ class Player
 			result = self.three_of_a_kind_tie_breaker(first_hand_stats, second_hand_stats)
 			#two pair
 		elsif first_hand_stats[:hand_strength] == 3
-
+			result = self.two_pair_tie_breaker(first_hand_stats, second_hand_stats)
 			#pair
 		elsif first_hand_stats[:hand_strength] == 2
-
+			result = self.pair_tie_breaker(first_hand_stats, second_hand_stats)
 		end
 
 		result
@@ -234,18 +235,18 @@ class Player
 	#checks if a hand has four of a kind, returns a hash
 	def four_of_a_kind (five_card_hand)
 
-		has_four_of_a_kind = {:name => "four of a kind", :hand_strength => 8,:status=>false, :quad_rank=> nil, :kicker => nil}
+		has_four_of_a_kind = {:name => "four of a kind", :hand_strength => 8,:status=>false, :quad_rank=> nil, :kickers => nil}
 
 		hand_ranks = numberfy(five_card_hand)
 
 		if hand_ranks.uniq.length == 2
 			if (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 1
-				has_four_of_a_kind[:kicker] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
+				has_four_of_a_kind[:kickers] =[ (hand_ranks-[ hand_ranks.uniq[0] ] )[0] ]
 				has_four_of_a_kind[:quad_rank] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
 				has_four_of_a_kind[:status] = true
 
 			elsif (hand_ranks-[ hand_ranks.uniq[0] ] ).length == 4
-				has_four_of_a_kind[:kicker] = (hand_ranks-[ hand_ranks.uniq[1] ] )[0]
+				has_four_of_a_kind[:kickers] =[ (hand_ranks-[ hand_ranks.uniq[1] ] )[0] ]
 				has_four_of_a_kind[:quad_rank] = (hand_ranks-[ hand_ranks.uniq[0] ] )[0]
 				has_four_of_a_kind[:status] = true
 			end
@@ -261,13 +262,7 @@ class Player
 		elsif second_hand_stats[:quad_rank] < first_hand_stats[:quad_rank]
 			result = 1
 		elsif second_hand_stats[:quad_rank] == first_hand_stats[:quad_rank]
-			if second_hand_stats[:kicker] > first_hand_stats[:kicker]
-				result = 0
-			elsif second_hand_stats[:kicker] < first_hand_stats[:kicker]
-				result = 1
-			elsif second_hand_stats[:kicker] == first_hand_stats[:kicker]
-				result = "tie"
-			end
+			result = self.compare_kickers(first_hand_stats[:kickers], second_hand_stats[:kickers])
 		end
 		result
 	end
@@ -404,7 +399,7 @@ class Player
 
 	def two_pair (five_card_hand)
 
-		has_two_pair = {:name => "two pair", :hand_strength => 3,:status=>false, :higher_pair_rank=> nil, :lower_pair_rank=> nil, :kicker => nil}
+		has_two_pair = {:name => "two pair", :hand_strength => 3,:status=>false, :higher_pair_rank=> nil, :lower_pair_rank=> nil, :kickers => nil}
 
 		hand_ranks = numberfy(five_card_hand)
 
@@ -417,10 +412,10 @@ class Player
 					#find the second pair and kicker
 					if (reduced_hand - [ reduced_hand.uniq[0] ]).length == 1
 						second_pair = reduced_hand.uniq[0]
-						has_two_pair[:kicker] = (reduced_hand - [ reduced_hand.uniq[0] ])[0]
+						has_two_pair[:kickers] =[ (reduced_hand - [ reduced_hand.uniq[0] ] )[0] ]
 					else
 						second_pair = reduced_hand.uniq[1]
-						has_two_pair[:kicker] = (reduced_hand - [ reduced_hand.uniq[1] ])[0]
+						has_two_pair[:kickers] =[ (reduced_hand - [ reduced_hand.uniq[1] ] )[0] ]
 					end
 					#which pair is higher
 					if first_pair > second_pair
@@ -435,6 +430,24 @@ class Player
 			end
 		end
 		has_two_pair
+	end
+
+	#Returns 0 if second_hand_stats beats first_hand_stats, 1 if first_hand_stats beats second_hand_stats, and "tie" if tie
+	def two_pair_tie_breaker (first_hand_stats,second_hand_stats)
+		if second_hand_stats[:higher_pair_rank] > first_hand_stats[:higher_pair_rank]
+			result = 0
+		elsif second_hand_stats[:higher_pair_rank] < first_hand_stats[:higher_pair_rank]
+			result = 1
+		elsif second_hand_stats[:higher_pair_rank] == first_hand_stats[:higher_pair_rank]
+			if second_hand_stats[:lower_pair_rank] > first_hand_stats[:lower_pair_rank]
+				result = 0
+			elsif second_hand_stats[:lower_pair_rank] < first_hand_stats[:lower_pair_rank]
+				result = 1
+			elsif second_hand_stats[:lower_pair_rank] == first_hand_stats[:lower_pair_rank]
+				result = self.compare_kickers(first_hand_stats[:kickers], second_hand_stats[:kickers])
+			end
+		end
+		result
 	end
 
 	def pair (five_card_hand)
@@ -452,6 +465,19 @@ class Player
 			end
 		end
 		has_pair
+	end
+
+	#Returns 0 if second_hand_stats beats first_hand_stats, 1 if first_hand_stats beats second_hand_stats, and "tie" if tie
+	def pair_tie_breaker (first_hand_stats,second_hand_stats)
+		if second_hand_stats[:pair_rank] > first_hand_stats[:pair_rank]
+			result = 0
+		elsif second_hand_stats[:pair_rank] < first_hand_stats[:pair_rank]
+			result = 1
+		elsif second_hand_stats[:pair_rank] == first_hand_stats[:pair_rank]
+			result = self.compare_kickers(first_hand_stats[:kickers], second_hand_stats[:kickers])
+		end
+
+		result
 	end
 
 	def highcard (five_card_hand)
