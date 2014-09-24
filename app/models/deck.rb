@@ -89,4 +89,20 @@ class Deck
     @playing_deck.length
   end
 
+  def take_cards_out(card_array)
+    started_with = self.how_many
+    took_out = card_array.length
+
+    @playing_deck = @playing_deck - card_array
+
+    ended_with = self.how_many
+
+    puts "Deck started with #{started_with}, took out the following #{took_out} cards: #{card_array}\n"
+    puts "Now have #{ended_with} cards in the deck, minus other unknown cards out there (player's hands)"
+  end
+
+  def cards
+    @playing_deck
+  end
+
 end
