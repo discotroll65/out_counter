@@ -4,16 +4,24 @@ class CardsController < ApplicationController
   # GET /cards
   # GET /cards.json
   def index
+    all_players = []
     @cards = Card.all
     @deck = Deck.new
-    @garrett = Player.new(@deck)
-    @aparna = Player.new(@deck)
-    @veera = Player.new(@deck)
+    @garrett = Player.new(@deck, "Garrett")
+    @aparna = Player.new(@deck, "Aparna")
+    @veera = Player.new(@deck, "Veera")
+
+    all_players << @garrett
+    all_players << @aparna
+    all_players << @veera
 
     @board = Board.new
 
     @board.flop(@deck)
+    # status =[@board.cards,[@garrett.name]+@garrett.hand,[@aparna.name]+@aparna.hand,[@veera.name] + @veera.hand]
+    game_status = @garrett.game_status(all_players, @board)
     binding.pry
+
     @board.turn(@deck)
     @board.river(@deck)
 

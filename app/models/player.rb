@@ -1,17 +1,23 @@
 class Player
 
 	#A new player gets dealt cards from a deck
-	def initialize (deck)
+	def initialize (deck, name)
 		@hand = 2.times.map {deck.draw_card}
 
 		@folded = false
 		@alive = true
+
+		@name = name
 
 	end
 
 	def hand_populate (array)
 		@hand = []
 		array.each {|card| @hand<<card}
+	end
+
+	def name
+		@name
 	end
 
 	def fold
@@ -30,47 +36,80 @@ class Player
 		@hand
 	end
 
-	def best_combo (board)
-		all_combos = self.possible_hands(board)
-		strongest_hand_strength = all_combos[0][:hand_strength]
+	def game_status(player_array, board)
+		status = {:board => board.cards}
+		player_hands = []
 
-		if strongest_hand_strength > all_combos[1][:hand_strength]
-			best_combo = all_combos[0]
-		else
-			top_combos = []
-			counter = 0
+		player_array.each_with_index do |player, index|
+			current_best_hand = player.best_combo(player.possible_hands(board))
 
-			while all_combos[counter][:hand_strength] == strongest_hand_strength
-				top_combos << all_combos[counter]
-				counter = counter + 1
-				break if all_combos[counter] == nil
-			end
+			status["Player#{index+1}".to_sym]= {:name => player.name, :two_cards => player.hand, :current_best_hand => current_best_hand}
 
-			top_combos.sort! {|y,x| self.universal_tie_breaker(x,y)<=>self.universal_tie_breaker(y,x) }
-			top_combos[0]
+			player_hands<< current_best_hand
 		end
+
+
+		winning_hand = best_combo(player_hands)
+		winners = []
+
+		player_array.each_with_index do |player, index|
+			best_hand = status["Player#{index+1}".to_sym][:current_best_hand]
+			if player.hand_compare(best_hand,winning_hand) != 0
+				winners<< player.name
+			end
+		end
+
+		status[:winning] = winners
+
+		status
+	end
+
+	#takes an array of hand_stats, and returns the best hand
+	def best_combo (hand_stats_array)
+
+		hand_stats_array.sort! {|y,x| self.hand_compare(x,y)<=>self.hand_compare(y,x) }
+		hand_stats_array[0]
+
+	end
+
+	#Returns 0 if second_hand_stats beats first_hand_stats, 1 if first_hand_stats beats second_hand_stats, and "tie" if tie
+	def hand_compare (first_hand_stats, second_hand_stats)
+		if second_hand_stats[:hand_strength] > first_hand_stats[:hand_strength]
+			0
+		elsif second_hand_stats[:hand_strength] < first_hand_stats[:hand_strength]
+			1
+		elsif second_hand_stats[:hand_strength] == first_hand_stats[:hand_strength]
+			universal_tie_breaker(first_hand_stats,second_hand_stats)
+		end
+
 	end
 
 	def universal_tie_breaker(first_hand_stats, second_hand_stats)
-		#For straight flush and straights
+		#For straight flush and straight ties
 		if first_hand_stats[:hand_strength] == 9 || first_hand_stats[:hand_strength] == 5
 			result = self.straights_tie_breaker(first_hand_stats, second_hand_stats)
-			#four of a kind
+
+			#for four of a kind ties
 		elsif first_hand_stats[:hand_strength] == 8
 			result = self.four_of_a_kind_tie_breaker(first_hand_stats, second_hand_stats)
-			#full house
+
+			#for full house ties
 		elsif first_hand_stats[:hand_strength] == 7
 			result = self.full_house_tie_breaker(first_hand_stats, second_hand_stats)
-			#for flushes or high card
+
+			#for flush or high card ties
 		elsif first_hand_stats[:hand_strength] == 6 || first_hand_stats[:hand_strength] == 1
 			result = self.compare_kickers(first_hand_stats[:kickers], second_hand_stats[:kickers])
-			#three of a kind
+
+			#for three of a kind ties
 		elsif first_hand_stats[:hand_strength] == 4
 			result = self.three_of_a_kind_tie_breaker(first_hand_stats, second_hand_stats)
-			#two pair
+
+			#for two pair ties
 		elsif first_hand_stats[:hand_strength] == 3
 			result = self.two_pair_tie_breaker(first_hand_stats, second_hand_stats)
-			#pair
+
+			#for pair ties
 		elsif first_hand_stats[:hand_strength] == 2
 			result = self.pair_tie_breaker(first_hand_stats, second_hand_stats)
 		end
@@ -78,6 +117,27 @@ class Player
 		result
 	end
 
+	#Returns 0 if second kickers beats first_kickers, 1 if first_kickers beats second kickers, and "tie" if tie
+	def compare_kickers (first_kickers, second_kickers)
+		last_index = (first_kickers.length)-1
+		result = nil
+
+		first_kickers.each_with_index do |kicker, index|
+			if second_kickers[index] > kicker
+				result = 0
+				break
+			elsif kicker > second_kickers[index]
+				result = 1
+				break
+			elsif kicker == second_kickers[index] && index == last_index
+				result = "tie"
+			end
+		end
+
+		result
+	end
+
+	#takes the current board, returns all possible hands of a player, sorted from highest to lowest hand strength
 	def possible_hands (board)
 		result = []
 		self.combos(board).each_with_index do |five_card_hand, index|
@@ -238,26 +298,6 @@ class Player
 		result
 	end
 
-	#Returns 0 if second kickers beats first_kickers, 1 if first_kickers beats second kickers, and "tie" if tie
-	def compare_kickers (first_kickers, second_kickers)
-		last_index = (first_kickers.length)-1
-		result = "test"
-		first_kickers.each_with_index do |kicker, index|
-			if second_kickers[index] > kicker
-				result = 0
-				break
-			elsif kicker > second_kickers[index]
-				result = 1
-				break
-			elsif kicker == second_kickers[index] && index == last_index
-				result = "tie"
-			end
-		end
-
-		result
-	end
-
-
 	def full_house (five_card_hand)
 
 		has_full_house = {:name => "full_house", :hand_strength => 7,:status=>false, :trip_rank=> nil, :pair_rank => nil}
@@ -301,7 +341,7 @@ class Player
 	def flush (five_card_hand)
 		has_flush = {:name => "flush", :hand_strength => 6,:status=>false, :highcard => nil, :kickers => nil}
 
-		suitify = five_card_hand.map do |card|
+		suites = five_card_hand.map do |card|
 			if card.slice(0..1) == "10"
 				card.slice(2)
 			else
@@ -309,7 +349,7 @@ class Player
 			end
 		end
 
-		has_flush[:status] = true if suitify.uniq.length == 1
+		has_flush[:status] = true if suites.uniq.length == 1
 
 		hand_ranks = numberfy(five_card_hand)
 		has_flush[:highcard] = hand_ranks[0]
