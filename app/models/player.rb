@@ -117,37 +117,8 @@ class Player
 
 	#combines hand with all possible 5 card combinations using the board
 	def combos (board)
-		board_amount = board.cards.length
-
-		if board_amount == 3
-			[board.cards + self.hand]
-		elsif board_amount == 4
-
-			board_combos = [ board.cards[0..2],
-											 board.cards[1..3],
-											 [board.cards[0]] + [board.cards[2]] + [board.cards[3]],
-											 [board.cards[0]] + [board.cards[1]] + [board.cards[3]]
-											 ]
-			board_combos.map { |combo| combo + self.hand }
-
-		elsif board_amount == 5
-
-			board_combos = [ board.cards[0..2],
-											 [board.cards[0]] + [board.cards[1]] + [board.cards[3]],
-											 [board.cards[0]] + [board.cards[2]] + [board.cards[3]],
-											 board.cards[1..3],
-
-											 [board.cards[0]] + [board.cards[1]] + [board.cards[4]],
-											 [board.cards[0]] + [board.cards[2]] + [board.cards[4]],
-											 [board.cards[1]] + [board.cards[2]] + [board.cards[4]],
-
-											 [board.cards[0]] + [board.cards[3]] + [board.cards[4]],
-											 [board.cards[1]] + [board.cards[3]] + [board.cards[4]],
-
-											 board.cards[2..4]
-											 ]
-			board_combos.map { |combo| combo + self.hand }
-		end
+		cards_available = board.cards + self.hand
+		cards_available.combination(5).to_a
 	end
 
 	#takes hand, turns royals into numbers, handles aces

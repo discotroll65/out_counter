@@ -36,6 +36,11 @@
 # 2 pair (3)
 # Pair   kickers compare (2)
 
+# three statuses:
+#5c5 : 1 combo
+#5c6 : 6 combos
+#5c7 : 21 combos
+
 
 class Deck
 

@@ -12,14 +12,10 @@ class CardsController < ApplicationController
 
     @board = Board.new
 
-    binding.pry
-
     @board.flop(@deck)
+    binding.pry
     @board.turn(@deck)
     @board.river(@deck)
-
-    x = @garrett.combos(@board)
-    @garrett.straight(['As', '2d', '3c','4c','5h'])
 
   end
 
