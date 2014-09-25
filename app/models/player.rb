@@ -501,4 +501,53 @@ class Player
 		hand_highcard
 	end
 
+	#calculates outs of a player, gives hash with current best combo, number of outs,
+	#and the cards and combos that make those would outs
+	def outs (board)
+		theo_deck = Deck.new
+		theo_deck.take_cards_out(board.cards + self.hand)
+
+		best_hand = best_combo(possible_hands(board))
+
+		outs_hash = {:current_best_hand => best_hand, :number_of_outs => nil, :outs => []}
+
+		theo_deck.cards.each do |card|
+			theo_board = Board.new
+			theo_board.populate(board.cards + [card])
+			theo_best_hand = best_combo(possible_hands(theo_board))
+
+			if theo_best_hand[:hand_strength] > best_hand[:hand_strength]
+				outs_hash[:outs] << [card, theo_best_hand[:name]]
+			end
+		end
+
+		outs_hash[:number_of_outs] = outs_hash[:outs].length
+
+		outs_hash
+
+		# Test this scenario, which has 7 outs :
+		# {
+		# 	:board => [
+		# 		[0] "5d",
+		# 		[1] "7d",
+		# 		[2] "8d"
+		# 	],
+		# 	:Player1 => {
+		# 		:name => "Garrett",
+		# 		:two_cards => [
+		# 			[0] "7c",
+		# 			[1] "7h"
+		# 		],
+		# 		:current_best_hand => {
+		# 			:name => "three of a kind",
+		# 			:hand_strength => 4,
+		# 			:status => true,
+		# 			:trip_rank => 7,
+		# 			:kickers => [
+		# 				[0] 8,
+		# 				[1] 5
+		# 			]
+		# 		}
+
+	end
 end
